@@ -10,7 +10,9 @@ public interface StorageService {
 
     void init();
 
-    void store(MultipartFile file);
+    //void store(MultipartFile file);
+
+    void parse(MultipartFile file);
 
     Stream<Path> loadAll();
 
