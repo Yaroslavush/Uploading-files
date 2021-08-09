@@ -1,10 +1,12 @@
 package com.example.uploadingfiles.service;
 
-public class Model {
+public class StringModel {
     private String receivedText;
     private String definitions;
 
-    public Model(String receivedText){
+    public StringModel(){
+    }
+    public StringModel(String receivedText){
         this.receivedText = receivedText;
     }
 

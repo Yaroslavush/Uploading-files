@@ -1,12 +1,12 @@
-package com.example.uploadingfiles.storage;
+package com.example.uploadingfiles.parser;
 
-public class StorageException extends RuntimeException {
+public class ParsingException extends RuntimeException {
 
-    public StorageException(String message) {
+    public ParsingException(String message) {
         super(message);
     }
 
-    public StorageException(String message, Throwable cause) {
+    public ParsingException(String message, Throwable cause) {
         super(message, cause);
     }
 }

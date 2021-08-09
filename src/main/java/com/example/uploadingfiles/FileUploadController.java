@@ -19,23 +19,30 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.uploadingfiles.storage.StorageFileNotFoundException;
-import com.example.uploadingfiles.storage.StorageService;
+import com.example.uploadingfiles.parser.StorageFileNotFoundException;
+import com.example.uploadingfiles.parser.ParsingService;
+import com.example.uploadingfiles.service.StringModel;
+import com.example.uploadingfiles.service.Neo4jServiceImpl;
+
 
 @Controller
 public class FileUploadController {
 
-    private final StorageService storageService;
+    private final ParsingService parsingService;
+    private StringModel stringModel;
+    private final Neo4jServiceImpl neo4jService;
 
     @Autowired
-    public FileUploadController(StorageService storageService) {
-        this.storageService = storageService;
+    public FileUploadController(ParsingService parsingService, Neo4jServiceImpl neo4jService) {
+
+        this.parsingService = parsingService;
+        this.neo4jService = neo4jService;
     }
 
     @GetMapping("/")
     public String listUploadedFiles(Model model) throws IOException {
 
-        model.addAttribute("files", storageService.loadAll().map(
+        model.addAttribute("files", parsingService.loadAll().map(
                 path -> MvcUriComponentsBuilder.fromMethodName(FileUploadController.class,
                         "serveFile", path.getFileName().toString()).build().toUri().toString())
                 .collect(Collectors.toList()));
@@ -47,7 +54,7 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 
-        Resource file = storageService.loadAsResource(filename);
+        Resource file = parsingService.loadAsResource(filename);
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
@@ -56,13 +63,23 @@ public class FileUploadController {
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes) {
 
-        //storageService.store(file);
-        storageService.parse(file);
+        stringModel = parsingService.parse(file);
+        neo4jService.init(stringModel);
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 
-        return "redirect:/";
+        return "redirect:/response";
     }
+
+    @GetMapping("/response")
+    public String response(Model model) {
+
+        model.addAttribute("text", stringModel.getDefinitions());
+
+        return "textResponse";
+        }
+
+
 
     @ExceptionHandler(StorageFileNotFoundException.class)
     public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {

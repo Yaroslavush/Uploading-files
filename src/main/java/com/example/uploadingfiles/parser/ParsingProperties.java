@@ -1,9 +1,9 @@
-package com.example.uploadingfiles.storage;
+package com.example.uploadingfiles.parser;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("storage")
-public class StorageProperties {
+public class ParsingProperties {
 
     /**
      * Folder location for storing files
