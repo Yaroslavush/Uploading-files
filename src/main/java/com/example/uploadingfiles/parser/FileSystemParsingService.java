@@ -26,12 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
 @Service
-public class FileSystemStorageService implements StorageService {
+public class FileSystemParsingService implements StorageService {
 
     private final Path rootLocation;
 
     @Autowired
-    public FileSystemStorageService(StorageProperties properties) {
+    public FileSystemParsingService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
     }
 
@@ -61,12 +61,12 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void parse(MultipartFile file) {
-        try{
         PDFParser parser = new PDFParser();
         BodyContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();
-        InputStream inputstream = file.getInputStream();
         ParseContext context = new ParseContext();
+        try{
+        InputStream inputstream = file.getInputStream();
 
         parser.parse(inputstream, handler, metadata, context);
        // System.out.println("File content : " + handler.toString());
@@ -78,6 +78,8 @@ public class FileSystemStorageService implements StorageService {
 
         }
     }
+
+
 
 
     @Override
